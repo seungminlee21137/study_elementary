@@ -65,8 +65,8 @@ vocab_db = [
     {"w": "빠져들었어", "wrong": ["빠저들었어", "빠져 들었어", "바져들었어"], "sent": "재미있는 이야기 속으로 ____."},
 ]
 
-# ==========================================
-# 2. 문제 생성 로직 (3가지 핵심 유형만 생성)
+#==========================================
+# 2. 문제 생성 로직 (수정됨 ✨)
 # ==========================================
 def generate_questions(target_count=2000):
     questions = []
@@ -76,48 +76,64 @@ def generate_questions(target_count=2000):
         for item in vocab_db:
             if len(questions) >= target_count: break
             
-            # 오답 리스트 섞기
-            wrongs = item['wrong'][:]
-            random.shuffle(wrongs)
+            # --- [핵심 수정] 데이터 정제 로직 시작 ---
+            
+            # 1단계: 오답 후보 중에서 '정답'과 똑같은 단어는 뺀다. (정답 중복 방지)
+            clean_wrongs = [w for w in item['wrong'] if w != item['w']]
+            
+            # 2단계: 오답 후보끼리 중복되는 단어를 없앤다. (set 사용)
+            clean_wrongs = list(set(clean_wrongs))
+            
+            # 3단계: 만약 오답이 3개보다 부족하다면? (데이터 오류 방지)
+            # 예: "파헤치며"의 경우 정답 빼고 중복 빼면 "파해치며" 1개만 남음 -> 에러 발생
+            # 부족한 만큼 기존 오답을 복사해서 채워넣음
+            while len(clean_wrongs) < 3:
+                if len(clean_wrongs) > 0:
+                    clean_wrongs.append(clean_wrongs[0]) # 있는 오답이라도 재사용
+                else:
+                    clean_wrongs.append("오답 없음") # 아예 없으면 임시 텍스트
+            
+            # 4단계: 순서 섞기
+            random.shuffle(clean_wrongs)
+            
+            # --- 데이터 정제 로직 끝 ---
 
             # [유형 1] 맞춤법 고르기
             q1 = {
                 "q": "다음 중 맞춤법(띄어쓰기)이 올바른 것을 고르세요.",
                 "a": item['w'],
-                "w1": wrongs[0],
-                "w2": wrongs[1],
-                "w3": wrongs[2]
+                "w1": clean_wrongs[0],
+                "w2": clean_wrongs[1],
+                "w3": clean_wrongs[2]
             }
             questions.append(q1)
 
             # [유형 2] 빈칸 채우기
             if len(questions) >= target_count: break
             
-            # 보기 순서 다시 섞기
-            random.shuffle(wrongs)
+            random.shuffle(clean_wrongs) # 보기 순서 다시 섞기
             q2 = {
                 "q": f"다음 문장의 빈칸에 들어갈 올바른 낱말은? '{item['sent']}'",
                 "a": item['w'],
-                "w1": wrongs[0],
-                "w2": wrongs[1],
-                "w3": wrongs[2]
+                "w1": clean_wrongs[0],
+                "w2": clean_wrongs[1],
+                "w3": clean_wrongs[2]
             }
             questions.append(q2)
 
             # [유형 3] 고쳐쓰기 (틀린 글자 찾기)
             if len(questions) >= target_count: break
             
-            target_wrong = wrongs[0] # 문장에 넣을 틀린 단어
+            target_wrong = clean_wrongs[0] # 정제된 오답 중 하나 선택
             wrong_sentence = item['sent'].replace("____", target_wrong)
             
-            # 만약 문장에 빈칸(____)이 없다면(즉, 이미 완성된 문장이었다면) 단어를 치환
             if "____" not in item['sent']:
                  wrong_sentence = item['sent'].replace(item['w'], target_wrong)
 
             q3 = {
                 "q": f"다음 문장에서 틀린 글자를 찾아 바르게 고친 것은? '{wrong_sentence}'",
                 "a": f"{target_wrong} -> {item['w']}",
-                "w1": f"{target_wrong} -> {wrongs[1]}", 
+                "w1": f"{target_wrong} -> {clean_wrongs[1]}", 
                 "w2": "틀린 글자가 없다.",               
                 "w3": f"{item['w']} -> {target_wrong}"   
             }
@@ -126,7 +142,7 @@ def generate_questions(target_count=2000):
     return questions[:target_count]
 
 # ==========================================
-# 3. CSV 파일 저장
+# 3. CSV 파일 저장 (기존과 동일)
 # ==========================================
 final_data = generate_questions(2000)
 
@@ -149,7 +165,4 @@ with open(filename, 'w', newline='', encoding='utf-8-sig') as f:
         ]
         writer.writerow(row)
 
-print(f"=========================================")
-print(f"'{filename}' 파일 생성이 완료되었습니다!")
-print(f"사용자 문장 기반으로 총 {len(final_data)}문제가 만들어졌습니다.")
-print(f"=========================================")
+print(f"'{filename}' 파일 생성 완료! (중복 정답 오류 수정됨)")
