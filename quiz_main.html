@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초등 스마트 문제은행 (홈 버튼 & 부분 삭제)</title>
+    <style>
+        :root { --primary: #27ae60; --secondary: #f39c12; --bg: #f4f7f6; --wrong: #e74c3c; --correct: #3498db; --selected: #8e44ad; }
+        body { font-family: 'Nanum Gothic', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { background: white; width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; min-height: 600px; display: flex; flex-direction: column; }
+        
+        /* 탭 스타일 */
+        .tabs { display: flex; background: #eee; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: #eee; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { background: white; color: var(--primary); border-top: 4px solid var(--primary); }
+        .tab-content { display: none; padding: 30px; flex: 1; }
+        .tab-content.active { display: block; }
+
+        h2 { margin-top: 0; color: #333; }
+        h3 { margin-top: 25px; margin-bottom: 10px; border-left: 5px solid var(--primary); padding-left: 10px; }
+        select, input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-right: 5px; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+        .row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; color: white; width: 100%; transition: 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background-color: var(--primary); }
+        .btn-danger { background-color: var(--wrong); width: auto; padding: 5px 10px; font-size: 14px; }
+        .btn-delete-section { background-color: var(--wrong); color: white; width: 100%; font-weight: bold; }
+        .btn-edit { background-color: var(--secondary); width: auto; padding: 5px 10px; font-size: 14px; margin-right: 5px; }
+        .btn-success { background-color: #2980b9; }
+        .btn-nav { background-color: #7f8c8d; width: 48%; }
+        .btn-nav.active { background-color: var(--primary); }
+        
+        /* 홈 버튼 스타일 */
+        .btn-home { background-color: #95a5a6; color: white; padding: 8px 15px; border: none; border-radius: 20px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-home:hover { background-color: #7f8c8d; }
+
+        .file-manager { background: #e8f5e9; padding: 15px; border-radius: 10px; border: 1px solid #c8e6c9; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .delete-manager { background: #fff5f5; padding: 15px; border-radius: 10px; border: 1px solid #ffcdd2; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .file-actions { display: flex; gap: 10px; justify-content: space-between; align-items: center; }
+        .file-btn { background: #34495e; font-size: 14px; width: auto; }
+        #file-input { display: none; }
+
+        /* 퀴즈 영역 */
+        .quiz-area { text-align: center; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .q-display { font-size: 22px; font-weight: bold; margin: 10px 0 20px 0; text-align: left; line-height: 1.5; color: #333; background: #fafafa; padding: 20px; border-radius: 10px; border: 1px solid #eee; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .option-btn { background: white; border: 2px solid #ddd; padding: 15px 20px; border-radius: 10px; cursor: pointer; font-size: 18px; transition: 0.2s; text-align: left; color: #444; font-weight: 500; }
+        .option-btn:hover { background: #f0f0f0; }
+        .option-btn.selected { border-color: var(--selected); background-color: #f4ecf7; color: var(--selected); font-weight: bold; box-shadow: 0 0 0 2px var(--selected) inset; }
+        .nav-box { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+
+        /* 결과 리포트 */
+        .report-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; text-align: left; }
+        .report-table th { background: #eee; padding: 10px; border-bottom: 2px solid #ddd; }
+        .report-table td { padding: 10px; border-bottom: 1px solid #eee; }
+        .row-wrong { background-color: #fff5f5; }
+        .admin-list { margin-top: 10px; max-height: 400px; overflow-y: auto; border-top: 2px solid #eee; }
+        .q-item { background: #f9f9f9; padding: 10px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        .q-title { font-weight: bold; font-size: 14px; }
+        .q-info { font-size: 12px; color: #666; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('student')">🎓 학생용 (시험)</button>
+        <button class="tab-btn" onclick="switchTab('teacher')">👨‍🏫 선생님용 (관리)</button>
+    </div>
+
+    <div id="student-tab" class="tab-content active">
+        <div id="setup-screen">
+            <h2>시험 준비</h2>
+            <p style="color:#666; font-size:14px; margin-bottom:20px;">* 원하는 학년과 과목을 선택하세요.</p>
+            <div class="row">
+                <select id="st-grade" onchange="updateDropdownState()">
+                    <option value="">학년 선택</option>
+                    <option value="1">1학년</option>
+                    <option value="2">2학년</option>
+                    <option value="3">3학년</option>
+                    <option value="4">4학년</option>
+                    <option value="5">5학년</option>
+                    <option value="6">6학년</option>
+                </select>
+                <select id="st-subject">
+                    <option value="">과목 선택</option>
+                    <option value="korean">국어</option>
+                    <option value="math">수학</option>
+                    <option value="english">영어</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="startQuiz()">시험 시작하기</button>
+        </div>
+
+        <div id="quiz-screen" style="display: none;">
+            <div class="quiz-header">
+                <button class="btn-home" onclick="goHome()">🏠 홈으로</button>
+                <span id="quiz-progress" style="background:#eee; padding:5px 12px; border-radius:15px; font-size:14px; font-weight:bold;"></span>
+            </div>
+            
+            <div id="quiz-info" style="text-align:center; color:#7f8c8d; font-size:14px; margin-bottom:10px;"></div>
+
+            <div class="quiz-area">
+                <div id="q-text" class="q-display"></div>
+                <div id="options-area" class="options-grid"></div>
+            </div>
+
+            <div class="nav-box">
+                <button id="btn-prev" class="btn btn-nav" onclick="moveQuestion(-1)">⬅ 이전 문제</button>
+                <button id="btn-next" class="btn btn-nav active" onclick="moveQuestion(1)">다음 문제 ➡</button>
+                <button id="btn-finish" class="btn btn-primary" style="display:none; width:48%;" onclick="finishQuiz()">📝 답안지 제출</button>
+            </div>
+        </div>
+
+        <div id="score-panel" style="display: none; text-align: center;">
+            <h2>시험 결과</h2>
+            <div id="final-score" style="font-size: 40px; color: var(--secondary); font-weight: bold; margin: 20px 0;"></div>
+            <p id="final-msg"></p>
+            <h3 style="margin-top: 30px; border-left: 5px solid var(--correct);">📝 상세 결과 리포트</h3>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table class="report-table">
+                    <thead><tr><th width="45%">문제</th><th>내 답안</th><th>정답</th><th>결과</th></tr></thead>
+                    <tbody id="report-body"></tbody>
+                </table>
+            </div>
+            <button class="btn btn-primary" onclick="goHome(true)" style="margin-top: 20px;">처음으로 돌아가기</button>
+        </div>
+    </div>
+
+    <div id="teacher-tab" class="tab-content">
+        <h3>📂 파일 추가</h3>
+        <div class="file-manager">
+            <p style="margin:0; font-size:14px; color:#555;">문제은행 파일(CSV/JSON)을 불러와서 문제를 추가합니다.</p>
+            <div class="file-actions" style="margin-top:10px;">
+                <button class="btn file-btn" onclick="document.getElementById('file-input').click()">📂 파일 불러오기</button>
+                <input type="file" id="file-input" accept=".json, .csv" onchange="handleFileUpload(this)">
+            </div>
+        </div>
+
+        <h3>🗑️ 데이터 삭제</h3>
+        <div class="delete-manager">
+            <p style="margin:0 0 10px 0; font-size:14px; color:#c0392b;">삭제할 학년과 과목을 선택하세요.</p>
+            <div class="row">
+                <select id="del-grade">
+                    <option value="all">전체 학년</option>
+                    <option value="1">1학년</option>
+                    <option value="2">2학년</option>
+                    <option value="3">3학년</option>
+                    <option value="4">4학년</option>
+                    <option value="5">5학년</option>
+                    <option value="6">6학년</option>
+                </select>
+                <select id="del-subject">
+                    <option value="all">전체 과목</option>
+                    <option value="korean">국어</option>
+                    <option value="math">수학</option>
+                    <option value="english">영어</option>
+                </select>
+            </div>
+            <button class="btn btn-delete-section" onclick="deleteSelectedData()">선택한 데이터 삭제하기</button>
+        </div>
+
+        <h3>📝 문제 개별 관리</h3>
+        <div class="row">
+            <select id="t-grade"><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option><option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option></select>
+            <select id="t-subject"><option value="korean">국어</option><option value="math">수학</option><option value="english">영어</option></select>
+        </div>
+        <input type="text" id="t-question" placeholder="문제 내용" />
+        <input type="text" id="t-answer" placeholder="정답" style="background: #e8f8f5; border-color: #27ae60;" />
+        <div class="row">
+            <input type="text" id="t-wrong1" placeholder="오답 1" />
+            <input type="text" id="t-wrong2" placeholder="오답 2" />
+            <input type="text" id="t-wrong3" placeholder="오답 3" />
+        </div>
+        <div class="row">
+            <button id="btn-submit" class="btn btn-success" onclick="handleQuestionSubmit()">문제 등록하기</button>
+            <button id="btn-cancel" class="btn btn-cancel" onclick="resetForm()">수정 취소</button>
+        </div>
+
+        <h3>📋 전체 문제 목록</h3>
+        <div class="row">
+            <select id="filter-grade" onchange="renderAdminList()"><option value="all">전체 학년</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option><option value="4">4학년</option><option value="5">5학년</option><option value="6">6학년</option></select>
+            <select id="filter-subject" onchange="renderAdminList()"><option value="all">전체 과목</option><option value="korean">국어</option><option value="math">수학</option><option value="english">영어</option></select>
+        </div>
+        <div id="admin-list" class="admin-list"></div>
+    </div>
+</div>
+
+<script>
+    let db = [];
+    let editingId = null;
+
+    window.onload = function() {
+        const savedData = localStorage.getItem('quizDB');
+        if (savedData) { db = JSON.parse(savedData); }
+        renderAdminList();
+        updateDropdownState();
+    };
+
+    function saveDB() {
+        localStorage.setItem('quizDB', JSON.stringify(db));
+        renderAdminList();
+        updateDropdownState();
+    }
+
+    // === [기능] 홈으로 이동 ===
+    function goHome(force = false) {
+        if (!force) {
+            if(!confirm("시험을 중단하고 홈으로 돌아가시겠습니까?\n(진행 상황은 저장되지 않습니다.)")) return;
+        }
+        document.getElementById('quiz-screen').style.display = "none";
+        document.getElementById('score-panel').style.display = "none";
+        document.getElementById('setup-screen').style.display = "block";
+        
+        // 데이터 리프레시
+        updateDropdownState();
+    }
+
+    // === [기능] 부분 삭제 ===
+    function deleteSelectedData() {
+        const grade = document.getElementById('del-grade').value;
+        const subject = document.getElementById('del-subject').value;
+
+        let msg = "";
+        if(grade === 'all' && subject === 'all') msg = "모든 학년, 모든 과목의 데이터를";
+        else if(grade === 'all') msg = `[모든 학년]의 [${getSubjectName(subject)}] 데이터를`;
+        else if(subject === 'all') msg = `[${grade}학년]의 [모든 과목] 데이터를`;
+        else msg = `[${grade}학년]의 [${getSubjectName(subject)}] 데이터를`;
+
+        if(!confirm(`정말로 ${msg} 삭제하시겠습니까?`)) return;
+
+        const initialCount = db.length;
+        
+        db = db.filter(item => {
+            const gradeMatch = (grade === 'all' || item.grade === grade);
+            const subjectMatch = (subject === 'all' || item.subject === subject);
+            return !(gradeMatch && subjectMatch);
+        });
+
+        const deletedCount = initialCount - db.length;
+        saveDB();
+        alert(`${deletedCount}개의 문제가 삭제되었습니다.`);
+    }
+
+    // === 스마트 필터링 ===
+    function updateDropdownState() {
+        const gradeSelect = document.getElementById('st-grade');
+        const subjectSelect = document.getElementById('st-subject');
+        const selectedGrade = gradeSelect.value;
+
+        for (let i = 1; i < gradeSelect.options.length; i++) {
+            const opt = gradeSelect.options[i];
+            const hasData = db.some(item => item.grade === opt.value);
+            opt.disabled = !hasData;
+            opt.innerText = hasData ? `${opt.value}학년` : `${opt.value}학년 (X)`;
+        }
+
+        for (let i = 1; i < subjectSelect.options.length; i++) {
+            const opt = subjectSelect.options[i];
+            const sVal = opt.value;
+            let baseText = getSubjectName(sVal);
+
+            if (selectedGrade === "") {
+                opt.disabled = true;
+                opt.innerText = baseText;
+                continue;
+            }
+            const count = db.filter(item => item.grade === selectedGrade && item.subject === sVal).length;
+            opt.disabled = (count === 0);
+            opt.innerText = count > 0 ? `${baseText} (${count}문제)` : `${baseText} (X)`;
+        }
+    }
+
+    function handleFileUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const content = e.target.result;
+            if (file.name.endsWith('.csv')) parseCSV(content);
+            else if (file.name.endsWith('.json')) parseJSON(content);
+            input.value = '';
+        };
+        reader.readAsText(file, 'UTF-8');
+    }
+    
+    function parseJSON(text) {
+        try { let data = JSON.parse(text); if(Array.isArray(data)) applyData(data); } 
+        catch(e) { alert("JSON 형식 오류"); }
+    }
+
+    function parseCSV(text) {
+        const lines = text.split('\n');
+        const newData = [];
+        for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].trim().split(',');
+            if (cols.length >= 8) {
+                newData.push({
+                    id: cols[0].trim(), grade: cols[1].trim(), subject: cols[2].trim(),
+                    q: cols[3].trim(), a: cols[4].trim(), w: [cols[5].trim(), cols[6].trim(), cols[7].trim()]
+                });
+            }
+        }
+        if(newData.length > 0) applyData(newData);
+    }
+
+    function applyData(newData) {
+        if(confirm(`문제 ${newData.length}개를 추가하시겠습니까?`)) {
+            const existingIds = new Set(db.map(item => String(item.id)));
+            newData.forEach((item, idx) => {
+                if(existingIds.has(String(item.id))) item.id = Date.now() + idx;
+            });
+            db = db.concat(newData);
+            saveDB();
+            alert(`추가 완료! 총 ${db.length}문제`);
+        }
+    }
+
+    // === 퀴즈 로직 ===
+    let quizList = [], currentIdx = 0, userAnswers = [];
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabName + '-tab').classList.add('active');
+        if(tabName === 'student') {
+            document.querySelector('.tabs button:nth-child(1)').classList.add('active');
+            updateDropdownState();
+        } else {
+            document.querySelector('.tabs button:nth-child(2)').classList.add('active');
+        }
+    }
+
+    function startQuiz() {
+        const grade = document.getElementById('st-grade').value;
+        const subject = document.getElementById('st-subject').value;
+        if(!grade || !subject) { alert("학년과 과목을 선택해주세요."); return; }
+
+        let candidates = db.filter(item => item.grade === grade && item.subject === subject);
+        candidates.sort(() => Math.random() - 0.5);
+
+        if (candidates.length === 0) { alert("문제가 없습니다."); return; }
+
+        quizList = [];
+        let usedConcepts = new Set();
+        for (let item of candidates) {
+            if (quizList.length >= 20) break;
+            let concept = item.a.includes("->") ? item.a.split("->")[1].trim() : item.a;
+            if (!usedConcepts.has(concept)) {
+                quizList.push(item);
+                usedConcepts.add(concept);
+            }
+        }
+
+        if(quizList.length === 0) { alert("문제가 부족합니다."); return; }
+
+        currentIdx = 0;
+        userAnswers = new Array(quizList.length).fill(null);
+        document.getElementById('setup-screen').style.display = "none";
+        document.getElementById('quiz-screen').style.display = "block";
+        document.getElementById('quiz-info').innerText = `${grade}학년 ${getSubjectName(subject)} 평가`;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const data = quizList[currentIdx];
+        document.getElementById('quiz-progress').innerText = `문제 ${currentIdx + 1} / ${quizList.length}`;
+        document.getElementById('q-text').innerText = `Q${currentIdx+1}. ${data.q}`;
+
+        const optionsArea = document.getElementById('options-area');
+        optionsArea.innerHTML = "";
+
+        if (!data.options) {
+            let opts = [data.a, ...data.w];
+            opts.sort(() => Math.random() - 0.5);
+            data.options = opts; 
+        }
+
+        data.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            if (userAnswers[currentIdx] === opt) btn.classList.add('selected');
+            btn.innerText = `${index + 1}. ${opt}`;
+            btn.onclick = () => selectAnswer(opt);
+            optionsArea.appendChild(btn);
+        });
+
+        document.getElementById('btn-prev').disabled = (currentIdx === 0);
+        if (currentIdx === quizList.length - 1) {
+            document.getElementById('btn-next').style.display = 'none';
+            document.getElementById('btn-finish').style.display = 'block';
+        } else {
+            document.getElementById('btn-next').style.display = 'block';
+            document.getElementById('btn-finish').style.display = 'none';
+        }
+    }
+
+    function selectAnswer(selectedText) {
+        userAnswers[currentIdx] = selectedText;
+        loadQuestion();
+    }
+
+    function moveQuestion(step) {
+        currentIdx += step;
+        loadQuestion();
+    }
+
+    function finishQuiz() {
+        const emptyCount = userAnswers.filter(a => a === null).length;
+        if (emptyCount > 0 && !confirm(`아직 ${emptyCount}문제를 풀지 않았습니다. 제출할까요?`)) return;
+
+        let score = 0;
+        document.getElementById('quiz-screen').style.display = "none";
+        document.getElementById('score-panel').style.display = "block";
+
+        const tbody = document.getElementById('report-body');
+        tbody.innerHTML = "";
+
+        quizList.forEach((qData, idx) => {
+            const myAns = userAnswers[idx];
+            const isCorrect = (myAns === qData.a);
+            if (isCorrect) score += 100 / quizList.length;
+
+            const tr = document.createElement('tr');
+            if (!isCorrect) tr.className = "row-wrong";
+            tr.innerHTML = `<td>Q${idx+1}. ${qData.q}</td><td style="${!isCorrect ? 'color:#e74c3c;font-weight:bold;' : ''}">${myAns || "-"}</td><td style="color:#27ae60;font-weight:bold;">${qData.a}</td><td>${isCorrect ? "O" : "X"}</td>`;
+            tbody.appendChild(tr);
+        });
+
+        const finalScore = Math.round(score);
+        document.getElementById('final-score').innerText = finalScore + "점";
+        document.getElementById('final-msg').innerText = finalScore >= 80 ? "참 잘했어요! 👏" : "수고했어요! 💪";
+    }
+
+    // === 관리 기능 ===
+    function handleQuestionSubmit() {
+        const grade = document.getElementById('t-grade').value;
+        const subject = document.getElementById('t-subject').value;
+        const q = document.getElementById('t-question').value.trim();
+        const a = document.getElementById('t-answer').value.trim();
+        const w1 = document.getElementById('t-wrong1').value.trim();
+        const w2 = document.getElementById('t-wrong2').value.trim();
+        const w3 = document.getElementById('t-wrong3').value.trim();
+
+        if (!q || !a || !w1) { alert("내용을 입력하세요."); return; }
+
+        if (editingId) {
+            const index = db.findIndex(item => String(item.id) === String(editingId));
+            if (index !== -1) db[index] = { id: editingId, grade, subject, q, a, w: [w1, w2, w3] };
+        } else {
+            db.push({ id: Date.now(), grade, subject, q, a, w: [w1, w2, w3] });
+        }
+        saveDB();
+        resetForm();
+    }
+
+    function editQuestion(id) {
+        const item = db.find(q => String(q.id) === String(id));
+        if (!item) return;
+        document.getElementById('t-grade').value = item.grade;
+        document.getElementById('t-subject').value = item.subject;
+        document.getElementById('t-question').value = item.q;
+        document.getElementById('t-answer').value = item.a;
+        document.getElementById('t-wrong1').value = item.w[0];
+        document.getElementById('t-wrong2').value = item.w[1];
+        document.getElementById('t-wrong3').value = item.w[2];
+        editingId = id;
+        document.getElementById('btn-submit').innerText = "수정 완료";
+        document.getElementById('btn-submit').classList.replace('btn-success', 'btn-primary');
+        document.getElementById('btn-cancel').style.display = "block";
+    }
+
+    function deleteQuestion(id) {
+        if(confirm("삭제하시겠습니까?")) {
+            db = db.filter(item => String(item.id) !== String(id));
+            saveDB();
+        }
+    }
+
+    function resetForm() {
+        editingId = null;
+        document.getElementById('t-question').value = "";
+        document.getElementById('t-answer').value = "";
+        document.getElementById('t-wrong1').value = "";
+        document.getElementById('t-wrong2').value = "";
+        document.getElementById('t-wrong3').value = "";
+        document.getElementById('btn-submit').innerText = "문제 등록하기";
+        document.getElementById('btn-submit').classList.replace('btn-primary', 'btn-success');
+        document.getElementById('btn-cancel').style.display = "none";
+    }
+
+    function renderAdminList() {
+        const listArea = document.getElementById('admin-list');
+        const fGrade = document.getElementById('filter-grade').value;
+        const fSubject = document.getElementById('filter-subject').value;
+        listArea.innerHTML = "";
+
+        const filtered = db.filter(item => 
+            (fGrade === 'all' || item.grade === fGrade) && 
+            (fSubject === 'all' || item.subject === fSubject)
+        );
+
+        if (filtered.length === 0) listArea.innerHTML = "<p style='text-align:center;color:#999;padding:20px;'>문제 없음</p>";
+        else filtered.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'q-item';
+            div.innerHTML = `<div style="flex:1;"><span class="q-title">${item.q}</span><span class="q-info">[${item.grade}학년 ${getSubjectName(item.subject)}] 답: ${item.a}</span></div><div><button class="btn btn-edit" onclick="editQuestion('${item.id}')">수정</button><button class="btn btn-danger" onclick="deleteQuestion('${item.id}')">삭제</button></div>`;
+            listArea.appendChild(div);
+        });
+    }
+
+    function getSubjectName(code) {
+        if(code === 'korean') return '국어';
+        if(code === 'math') return '수학';
+        if(code === 'english') return '영어';
+        return code;
+    }
+</script>
+</body>
+</html>

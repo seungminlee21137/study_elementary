@@ -1,0 +1,51 @@
+﻿id,grade,subject,q,a,w1,w2,w3
+6001,6,english,"다음 빈칸에 알맞은 말은? ""What ____ you do yesterday?""",did,do,will,are
+6002,6,english,"다음 우리말을 영어로 바르게 옮긴 것은? ""나는 공원에 갔어.""",I went to the park.,I go to the park.,I will go to the park.,I am going to the park.
+6003,6,english,다음 대화의 빈칸에 알맞은 말은? A: How was your weekend? B: It ____ great.,was,is,are,were
+6004,6,english,다음 중 과거형 동사가 *잘못* 짝지어진 것은?,go - goed,eat - ate,see - saw,play - played
+6005,6,english,"다음 빈칸에 알맞은 말은? ""I ____ my grandmother last Sunday.""",visited,visit,visiting,will visit
+6006,6,english,"다음 빈칸에 알맞은 말은? ""Where ____ the post office?""",is,are,do,does
+6007,6,english,다음 대화의 응답으로 알맞은 것은? A: Where is the bank? B: ______,Go straight and turn left.,I am happy.,It is 5 o'clock.,I like apples.
+6008,6,english,다음 단어의 뜻으로 알맞은 것은? [straight],곧장(똑바로),오른쪽으로,왼쪽으로,뒤로
+6009,6,english,"다음 빈칸에 알맞은 말은? ""It's ____ the police station.""",next to,next,next in,next at
+6010,6,english,길을 물어볼 때 쓰는 표현이 *아닌* 것은?,I like swimming.,Where is the museum?,How can I get there?,Is there a hospital near here?
+6011,6,english,"다음 빈칸에 알맞은 말은? ""What do you want to ____?""",be,do,go,have
+6012,6,english,"다음 우리말을 영어로 바르게 옮긴 것은? ""나는 과학자가 되고 싶어.""",I want to be a scientist.,I want to be a doctor.,I want to be a teacher.,I want to be a baker.
+6013,6,english,다음 직업과 하는 일이 바르게 연결된 것은?,Baker - makes bread,Doctor - catches thieves,Artist - flies a plane,Pilot - draws pictures
+6014,6,english,"다음 빈칸에 알맞은 말은? ""I like cooking. I want to be a ____.""",cook,vet,singer,police officer
+6015,6,english,다음 중 직업을 나타내는 단어가 *아닌* 것은?,Future,Designer,Movie director,Programmer
+6016,6,english,"다음 빈칸에 알맞은 말은? ""When is your ____?""",birthday,name,school,lunch
+6017,6,english,다음 날짜를 영어로 바르게 읽은 것은? [5월 1일],May first,May one,May once,May firth
+6018,6,english,다음 중 '3월'을 뜻하는 단어는?,March,May,April,June
+6019,6,english,"다음 빈칸에 알맞은 말은? ""My birthday is ____ October 9th.""",on,in,at,of
+6020,6,english,다음 중 서수(순서) 표현이 *틀린* 것은?,threeth,first,second,third
+6021,6,english,"다음 빈칸에 알맞은 말은? ""The elephant is ____ than the dog.""",bigger,big,biggest,more big
+6022,6,english,"다음 우리말을 영어로 바르게 옮긴 것은? ""민수는 지호보다 키가 더 커.""",Minsu is taller than Jiho.,Minsu is tall than Jiho.,Minsu is tallest than Jiho.,Minsu is more tall than Jiho.
+6023,6,english,"다음 빈칸에 알맞은 말은? ""Who is ____, you or Tom?""",faster,fast,fastest,more fast
+6024,6,english,다음 중 비교급 형태가 *잘못된* 것은?,good - gooder,heavy - heavier,big - bigger,strong - stronger
+6025,6,english,"다음 문장의 뜻으로 알맞은 것은? ""This box is heavier than that one.""",이 상자는 저것보다 더 무겁다.,이 상자는 저것보다 더 가볍다.,이 상자는 저것보다 더 크다.,이 상자는 저것보다 더 작다.
+6026,6,english,"다음 빈칸에 알맞은 말은? ""What ____ you going to do this summer?""",are,do,did,will
+6027,6,english,다음 대화의 응답으로 알맞은 것은? A: What will you do tomorrow? B: ______,I will go hiking.,I went hiking.,I go hiking.,I am hiking.
+6028,6,english,다음 문장에서 미래를 나타내는 표현이 *아닌* 것은?,yesterday,tomorrow,next week,this weekend
+6029,6,english,"다음 우리말을 영어로 바르게 옮긴 것은? ""나는 축구를 할 거야.""",I am going to play soccer.,I play soccer.,I played soccer.,I playing soccer.
+6030,6,english,다음 전화 통화 표현 중 알맞지 *않은* 것은?,I am hang up.,Can I speak to Minji?,This is Minji speaking.,"Who is calling, please?"
+6031,6,english,"다음 빈칸에 알맞은 말은? ""May I ____ to Jinu?""",speak,talks,speaking,speaks
+6032,6,english,"전화를 받을 때 ""접니다.""를 영어로 바르게 표현한 것은?",This is he/she speaking.,I am speaking.,Here is me.,It is me.
+6033,6,english,"다음 빈칸에 알맞은 말은? ""Why are you ____?""",sad,happy,book,desk
+6034,6,english,다음 대화의 응답으로 알맞은 것은? A: Why are you happy? B: ______ I passed the test.,Because,So,But,And
+6035,6,english,다음 단어의 우리말 뜻이 *잘못* 연결된 것은?,Run - 자다,Eat - 먹다,Sleep - 자다,Study - 공부하다
+6036,6,english,"다음 문장의 빈칸에 들어갈 말은? ""How ____ apples do you want?""",many,much,long,old
+6037,6,english,"다음 빈칸에 알맞은 말은? ""How ____ is this bag?""",much,many,big,long
+6038,6,english,가격을 묻는 표현으로 알맞은 것은?,How much is it?,How many is it?,How old is it?,How tall is it?
+6039,6,english,다음 중 셀 수 *없는* 명사는?,water,apple,book,cup
+6040,6,english,"다음 빈칸에 알맞은 말은? ""You ____ help your mom.""",should,shouldn't,don't,not
+6041,6,english,"다음 우리말을 영어로 바르게 옮긴 것은? ""너는 일찍 자야 해.""",You should go to bed early.,You can go to bed early.,You may go to bed early.,You go to bed early.
+6042,6,english,충고하는 말을 할 때 쓰는 조동사는?,should,will,do,are
+6043,6,english,다음 중 짝지어진 단어의 관계가 나머지와 *다른* 것은?,Happy - Glad (비슷),Hot - Cold (반대),Big - Small (반대),Tall - Short (반대)
+6044,6,english,"다음 빈칸에 알맞은 말은? ""She ____ a teacher.""",is,are,am,be
+6045,6,english,"다음 문장의 올바른 부정문은? ""He likes pizza.""",He doesn't like pizza.,He don't like pizza.,He not likes pizza.,He isn't like pizza.
+6046,6,english,다음 중 3인칭 단수 주어는?,She,I,You,We
+6047,6,english,"다음 빈칸에 알맞은 말은? ""They ____ playing soccer now.""",are,is,am,was
+6048,6,english,다음 중 진행형(~하는 중이다) 문장은?,I am reading a book.,I read a book.,I will read a book.,I readed a book.
+6049,6,english,"다음 빈칸에 알맞은 말은? ""Can you ____ me?""",help,helps,helping,helped
+6050,6,english,다음 대화의 빈칸에 알맞은 말은? A: Thank you very much. B: ______.,You're welcome.,That's too bad.,I'm sorry.,"Yes, please."
